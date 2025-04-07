@@ -9,17 +9,30 @@ jobs:
   build:
     runs-on: corona_tracker
     permissions: 
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           
+      - name: Show Files
+        run: ls -la && ls -la src
+
       - name: Run SonarScanner with Debug
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner -Dsonar.projectKey=corona_tracker \
-              -Dsonar.sources=src \
-              -Dsonar.host.url=http://192.168.0.104:9000 \
-              -Dsonar.login=squ_e9eff9fcc2a7a7977040b6b75011929e50e68003 \
-              -X
+          sonar-scanner \
+            -Dsonar.projectKey=corona_tracker \
+            -Dsonar.sources=src \
+            -Dsonar.host.url=http://192.168.0.104:9000 \
+            -Dsonar.login=$SONAR_TOKEN \
+            -X
+
+      - name: Wait for Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
