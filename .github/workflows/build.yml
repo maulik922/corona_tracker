@@ -19,6 +19,12 @@ jobs:
           
       - name: Show Files in Workspace
         run: ls -la && ls -R src
+      - name: Debug workspace layout
+        run: |
+          echo "Current dir:"
+          pwd
+          echo "Files:"
+          find . -type f
 
       - name: Run SonarScanner with Debug
         env:
