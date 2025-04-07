@@ -26,8 +26,8 @@ jobs:
         run: |
           sonar-scanner \
             -Dsonar.projectKey=corona_tracker \
-            -Dsonar.sources=src \
-            -Dsonar.inclusions=**/*.js \
+            -Dsonar.sources=. \
+            -Dsonar.inclusions=**/*.js,**/*.ts \
             -Dsonar.projectVersion=1.0.${{ github.run_number }} \
             -Dsonar.host.url=http://192.168.0.104:9000 \
             -Dsonar.login=$SONAR_TOKEN \
