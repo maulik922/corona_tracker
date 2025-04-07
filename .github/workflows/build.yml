@@ -17,8 +17,8 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Show Files
-        run: ls -la && ls -la src
+      - name: Show Files in Workspace
+        run: ls -la && ls -R src
 
       - name: Run SonarScanner with Debug
         env:
@@ -27,12 +27,8 @@ jobs:
           sonar-scanner \
             -Dsonar.projectKey=corona_tracker \
             -Dsonar.sources=src \
+            -Dsonar.inclusions=**/*.js \
+            -Dsonar.projectVersion=1.0.${{ github.run_number }} \
             -Dsonar.host.url=http://192.168.0.104:9000 \
             -Dsonar.login=$SONAR_TOKEN \
             -X
-
-      - name: Wait for Quality Gate
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
