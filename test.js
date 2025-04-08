@@ -14,6 +14,7 @@ function faultyFunction() {
   if (true) {
     console.log("This function is missing a return statement")
   }
+  
 }
 
 // Unreachable code
