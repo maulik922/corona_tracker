@@ -1,4 +1,4 @@
-name: Build
+name: Build with SonarScanner
 
 on:
   push:
@@ -7,21 +7,39 @@ on:
 
 jobs:
   build:
-    name: Build
     runs-on: corona_tracker
     permissions:
       contents: read
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Required for SonarQube's full analysis context
 
-      - uses: SonarSource/sonarqube-scan-action@v5.1.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java (required by SonarScanner)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download SonarScanner CLI
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner-cli-*.zip
+          mv sonar-scanner-* sonar-scanner
+          echo "${PWD}/sonar-scanner/bin" >> $GITHUB_PATH
+
+      - name: Run SonarScanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          sonar-scanner \
+            -Dsonar.login=${SONAR_TOKEN} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
 
-      - uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
+      - name: Check Quality Gate Status
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
