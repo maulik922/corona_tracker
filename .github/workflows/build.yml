@@ -5,36 +5,23 @@ on:
     branches:
       - master
 
+
 jobs:
   build:
+    name: Build
     runs-on: corona_tracker
-    permissions: 
-      contents: read
-      id-token: write
-
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-          
-      - name: Show Files in Workspace
-        run: ls -la && ls -R src
-      - name: Debug workspace layout
-        run: |
-          echo "Current dir:"
-          pwd
-          echo "Files:"
-          find . -type f
-
-      - name: Run SonarScanner with Debug
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=corona_tracker \
-            -Dsonar.sources=. \
-            -Dsonar.inclusions=**/*.js,**/*.ts \
-            -Dsonar.projectVersion=1.0.${{ github.run_number }} \
-            -Dsonar.host.url=http://192.168.0.104:9000 \
-            -Dsonar.login=$SONAR_TOKEN \
-            -X
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      - uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
